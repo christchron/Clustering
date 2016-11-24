@@ -18,6 +18,7 @@ import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.Clusterer;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
+import weka.core.converters.ConverterUtils.DataSource;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -27,7 +28,7 @@ import weka.core.converters.ConverterUtils;
 
 /**
  *
- * @author Edwin
+ * @author Randi
  */
 public class Clustering {
     
@@ -101,7 +102,7 @@ public class Clustering {
         }
     }
     
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException, Exception{
         
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
         
@@ -118,24 +119,29 @@ public class Clustering {
                 ArrayList<ArrayList<Double>> dataset = new ArrayList<>();
                 System.out.print("Input dataset: ");
                 String filename = input.readLine();
-                CSVReader reader = new CSVReader(new FileReader("dataset/"+filename));
+//                CSVReader reader = new CSVReader(new FileReader("dataset/"+filename));
+                DataSource source = new DataSource("dataset/"+filename);
+                Instances data = source.getDataSet();
                 System.out.print("Total Cluster: ");
                 int totalCluster = Integer.parseInt(input.readLine());
                 System.out.print("Dataset with Class (yes/no)? ");
                 String answer = input.readLine();
                 String [] nextLine;
-                while ((nextLine = reader.readNext()) != null) {
-                   ArrayList<Double> instance = new ArrayList<>();
-                   for(int i=0; i<nextLine.length; i++){
-                        if(answer.equals("no") || answer.equals("No") || (answer.equals("yes") && i<nextLine.length-1)){ //assume class located in last attr
-                            instance.add(Double.parseDouble(nextLine[i]));
-                        }
-                   }
-                   dataset.add(instance);
-                }
+//                while ((nextLine = reader.readNext()) != null) {
+//                   ArrayList<Double> instance = new ArrayList<>();
+//                   for(int i=0; i<nextLine.length; i++){
+//                        if(answer.equals("no") || answer.equals("No") || (answer.equals("yes") && i<nextLine.length-1)){ //assume class located in last attr
+//                            instance.add(Double.parseDouble(nextLine[i]));
+//                        }
+//                   }
+//                   dataset.add(instance);
+//                }
 
                 myKMeans K = new myKMeans();
-                K.buildCluster(dataset, totalCluster);
+                K.setTotalCluster(totalCluster);
+                K.buildClusterer(data);
+//                K.buildCluster(dataset);
+                
                 K.showClusterList();
                 break;
             case 2 :
