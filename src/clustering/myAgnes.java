@@ -45,7 +45,6 @@ public class myAgnes extends AbstractClusterer{
             instance.add(data.instance(i));
             clusters.add(instance);
         }
-        System.out.println("Clusters  : " + clusters.size());
         
         distanceFunction.setInstances(data);
         for (int i = 0; i < clusters.size(); i++) {
@@ -56,7 +55,6 @@ public class myAgnes extends AbstractClusterer{
             }
             clusterDistances.add(distances);
         }
-        System.out.println("Cluster Distance : " + clusterDistances.size());
         
         while (clusters.size() > numberOfClusters()) {
             int c1 = -1;
@@ -78,12 +76,6 @@ public class myAgnes extends AbstractClusterer{
     public void merge(int c1, int c2) {
         clusters.get(c1).addAll(clusters.get(c2));
         clusters.remove(c2);        
-//        System.out.println("C1 : " + c1);
-//        System.out.println("C2 : " + c2);
-//        System.out.println("Clusters : " + clusters.size());
-//        System.out.println("Cluster Distance : " + clusterDistances.size());
-//        System.out.println("Type : " + this.type);
-//        //System.out.println("Size : " + clusters.get(c1).size());
         
         for (int i = 0; i < clusterDistances.get(c1).size(); i++) {
             if (this.type.equals("SINGLE_LINK")) {
@@ -108,12 +100,12 @@ public class myAgnes extends AbstractClusterer{
     public String toString() {
         String temp = "";
         for (int i = 0; i < clusters.size(); i++) {
-            temp += "Cluster " + i + " : " + clusters.get(i).size() + "\n";
-            /*temp += "Instances : ";
+            temp += "Cluster " + i + " : " + clusters.get(i).size() + " instance(s) \n";
+            temp += "Instances : \n";
             for (int j = 0; j < clusters.get(i).size(); j++) {
-                temp += clusters.get(i).get(j);
-            }*/
-            temp += "\n";
+                temp += "" + (j + 1) + ". " + clusters.get(i).get(j) + "\n";
+            }
+            temp += " \n";
         }
         return temp;
     }

@@ -52,7 +52,9 @@ public class MeansAgnes {
                 model = new myAgnes(2, "SINGLE_LINK");
                 break;
             case 1 :
-//                model = new MyKMeans();
+                model = new myAgnes(2, "COMPLETE_LINK");
+                break;
+            case 2  :
                 break;
             default:
                 break;
@@ -102,7 +104,7 @@ public class MeansAgnes {
         while(stat){
             System.out.println("\n\nProgram Eksplorasi Weka");
             System.out.println("1. Load data set");
-            System.out.println("2. Build Classifier");
+            System.out.println("2. Build Clusterer");
             System.out.println("3. Percentage Split");
             System.out.println("4. Exit");
             System.out.print("Pilih Menu : "); 
@@ -129,11 +131,12 @@ public class MeansAgnes {
                 }
                 w.loadFile(file); 
             } else if(option == 2) {
-                System.out.println("====Build Classifier====");
+                System.out.println("====Build Clusterer====");
                 //create model
-                System.out.println("Classifier yang akan digunakan:");
-                System.out.println("1. Agnes");
-                System.out.println("2. K-Means");
+                System.out.println("Clusterer yang akan digunakan:");
+                System.out.println("1. Agnes Single Link");
+                System.out.println("2. Agnes Complete Link");
+                System.out.println("3. K-Means");
                 System.out.print("Masukan pilihan : ");
                 clusterer = scan.nextInt();
                 w.setClusterer(clusterer - 1);
