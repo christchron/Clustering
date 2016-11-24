@@ -66,7 +66,7 @@ public class Clustering {
                 model = new myAgnes(2, "SINGLE_LINK");
                 break;
             case 1 :
-                model = new myAgnes(2, "COMPLETE-LINK");
+                model = new myAgnes(2, "COMPLETE_LINK");
                 break;
             default:
                 break;
@@ -142,7 +142,7 @@ public class Clustering {
                 while(stat){
                     System.out.println("\n\nProgram Eksplorasi Weka");
                     System.out.println("1. Load data set");
-                    System.out.println("2. Build Classifier");
+                    System.out.println("2. Build Clusterer");
                     System.out.println("3. Percentage Split");
                     System.out.println("4. Exit");
                     System.out.print("Pilih Menu : "); 
@@ -175,10 +175,10 @@ public class Clustering {
                             w.loadFile(file);
                             break;
                         case 2:
-                            System.out.println("====Build Classifier====");
+                            System.out.println("====Build Clusterer====");
                             //create model
-                            System.out.println("Classifier yang akan digunakan:");
-                            System.out.println("1. Agnes - SIMPLE LINK");
+                            System.out.println("Clusterer yang akan digunakan:");
+                            System.out.println("1. Agnes - SINGLE LINK");
                             System.out.println("2. Agnes - COMPLETE LINK");
                             System.out.print("Masukan pilihan : ");
                             clusterer = scan.nextInt();
