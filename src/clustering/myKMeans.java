@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import weka.clusterers.AbstractClusterer;
 import weka.core.*;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 
 /**
  *
@@ -11,8 +13,8 @@ import weka.core.*;
  */
 
 public class myKMeans extends AbstractClusterer{
-    ArrayList<ArrayList<Double>> centroidList;
-    ArrayList<ArrayList<ArrayList<Double>>> clusterList;
+    ArrayList<Instance> centroidInstanceList;
+    ArrayList<ArrayList<Instance>> clusterInstanceList;
     int totalEpoch;
     int totalCluster;
     
@@ -20,98 +22,35 @@ public class myKMeans extends AbstractClusterer{
         totalCluster = _totalCluster;
     }
     
-    public Double countEuDist(ArrayList<Double> first, ArrayList<Double> second){
-        Double distance = 0.0;
-        for (int i = 0 ; i<first.size() ; i++){
-            distance += Math.pow((second.get(i) - first.get(i)),2);
-        }
-        return Math.sqrt(distance);
-    }
-    
-    public ArrayList<Double> countNewCentroids(ArrayList<ArrayList<Double>> dataset){
-        ArrayList<Double> newCentroids = new ArrayList();
-        for (int i = 0 ; i < dataset.get(0).size() ; i++){
+    public Instance countNewCentroids(ArrayList<Instance> cluster){
+        Instance newCentroids = new Instance(cluster.get(0).numAttributes());
+        for (int i = 0 ; i < cluster.get(0).numAttributes() ; i++){
             Double sum = 0.0;
-            for (int j = 0 ; j < dataset.size() ; j++){
-                sum += dataset.get(j).get(i);
+            for (int j = 0 ; j < cluster.size() ; j++){
+                sum += (Double) cluster.get(j).value(i);
             }
-            newCentroids.add(sum/dataset.size());
+            newCentroids.setValue(i, sum/cluster.size());
         }
         
         return newCentroids;
     }
     
-    public void buildCluster(ArrayList<ArrayList<Double>> dataset){
-        centroidList = new ArrayList();
-        totalEpoch = 0;
-        
-        //menginisiasi centroid secara random
-        ArrayList<Integer> randomCentroid = new ArrayList<Integer>();
-        for (int i=0; i<dataset.size(); i++) {
-            randomCentroid.add(new Integer(i));
-        }
-        Collections.shuffle(randomCentroid);
-        System.out.println("Initiate Centroid");
-        for (int i=0; i<totalCluster; i++) {
-            System.out.println("Centroid Cluster-"+(i+1)+": "+dataset.get(randomCentroid.get(i)));
-            centroidList.add(dataset.get(randomCentroid.get(i)));
-        }
-        
-        ArrayList<ArrayList<Double>> prevClusterList = new ArrayList();
-        int minDistanceClusterIndex = 0;
-        Double minDistanceToCentroid = 0.0;
-        
-        while (true){
-            clusterList = new ArrayList();
-            for (int i = 0;i<totalCluster;i++){
-                clusterList.add(new ArrayList());
-            }
-            
-            for (int i = 0;i<dataset.size();i++){
-                minDistanceClusterIndex = 0;
-                minDistanceToCentroid = countEuDist(dataset.get(i), centroidList.get(0));
-                for (int j = 0;j<centroidList.size();j++){
-                    Double newDistance = countEuDist(dataset.get(i), centroidList.get(j));
-                    if (newDistance < minDistanceToCentroid){
-                        minDistanceClusterIndex = j;
-                        minDistanceToCentroid = newDistance;
-                    }
-                }
-                clusterList.get(minDistanceClusterIndex).add(dataset.get(i));
-            }
-            
-            if(!clusterList.equals(prevClusterList)){
-                totalEpoch++;
-                prevClusterList = new ArrayList(clusterList);
-            }else{
-                break;
-            }
-            
-            for (int i = 0;i<centroidList.size();i++){
-                if(clusterList.get(i).size() > 0){
-                    centroidList.set(i, countNewCentroids(clusterList.get(i)));
-                }
-            }
-        }
-    }
-    
     public void showClusterList(){
         System.out.println("Total Epoch to Converge: " + totalEpoch);
-        for(int i=0; i<clusterList.size(); i++){
+        for(int i=0; i<clusterInstanceList.size(); i++){
             System.out.println("CLUSTER-"+ (i+1) + ": ");
-            System.out.println("  Centroids: " + centroidList.get(i)); 
+            System.out.println("  Centroids: " + centroidInstanceList.get(i)); 
             System.out.print("  Members: ");
-            for(int j=0; j<clusterList.get(i).size(); j++){
-                System.out.print(clusterList.get(i).get(j)+" ");
+            for(int j=0; j<clusterInstanceList.get(i).size(); j++){
+                System.out.print("["+clusterInstanceList.get(i).get(j)+"] ");
             }
             System.out.println("");
         }
     }
-
+    
     @Override
     public void buildClusterer(Instances data) throws Exception {
-        
-        centroidList = new ArrayList();
+        centroidInstanceList = new ArrayList();
         totalEpoch = 0;
         
         ArrayList<ArrayList<Double>> dataset = new ArrayList();
@@ -128,48 +67,58 @@ public class myKMeans extends AbstractClusterer{
             dataset.add(tempAttr);
             randomCentroid.add(new Integer(i));
         }
-        System.out.println(dataset);
         
         Collections.shuffle(randomCentroid);
+        
         System.out.println("Initiate Centroid");
         for (int i=0; i<totalCluster; i++) {
-            System.out.println("Centroid Cluster-"+(i+1)+": "+dataset.get(randomCentroid.get(i)));
-            centroidList.add(dataset.get(randomCentroid.get(i)));
+            System.out.println("Centroid Cluster-"+(i+1)+": "+data.instance(randomCentroid.get(i)));
+            centroidInstanceList.add(data.instance(randomCentroid.get(i)));
         }
         
         ArrayList<ArrayList<Double>> prevClusterList = new ArrayList();
+        ArrayList<ArrayList<Instance>> prevInstanceClusterList = new ArrayList();
         int minDistanceClusterIndex = 0;
-        Double minDistanceToCentroid = 0.0;
+        Double minDistanceToCentroidInstance = 0.0;
+        DistanceFunction disFunc = new EuclideanDistance();
+        
+        ReplaceMissingValues replaceMissingFilter = new ReplaceMissingValues();
+        Instances instances = new Instances(data);
+        instances.setClassIndex(-1);
+        replaceMissingFilter.setInputFormat(instances);
+        instances = Filter.useFilter(instances, replaceMissingFilter);
+        disFunc.setInstances(instances);
+        
         
         while (true){
-            clusterList = new ArrayList();
+            clusterInstanceList = new ArrayList();
             for (int i = 0;i<totalCluster;i++){
-                clusterList.add(new ArrayList());
+                clusterInstanceList.add(new ArrayList());
             }
             
             for (int i = 0;i<dataset.size();i++){
                 minDistanceClusterIndex = 0;
-                minDistanceToCentroid = countEuDist(dataset.get(i), centroidList.get(0));
-                for (int j = 0;j<centroidList.size();j++){
-                    Double newDistance = countEuDist(dataset.get(i), centroidList.get(j));
-                    if (newDistance < minDistanceToCentroid){
+                minDistanceToCentroidInstance = disFunc.distance(instances.instance(i), centroidInstanceList.get(0));
+                for (int j = 0;j<centroidInstanceList.size();j++){
+                    Double newInsDistance = disFunc.distance(data.instance(i),centroidInstanceList.get(j));
+                    if (newInsDistance < minDistanceToCentroidInstance){
                         minDistanceClusterIndex = j;
-                        minDistanceToCentroid = newDistance;
+                        minDistanceToCentroidInstance = newInsDistance;
                     }
                 }
-                clusterList.get(minDistanceClusterIndex).add(dataset.get(i));
+                clusterInstanceList.get(minDistanceClusterIndex).add(data.instance(i));
             }
             
-            if(!clusterList.equals(prevClusterList)){
+            if(!clusterInstanceList.equals(prevClusterList)){
                 totalEpoch++;
-                prevClusterList = new ArrayList(clusterList);
+                prevClusterList = new ArrayList(clusterInstanceList);
             }else{
                 break;
             }
             
-            for (int i = 0;i<centroidList.size();i++){
-                if(clusterList.get(i).size() > 0){
-                    centroidList.set(i, countNewCentroids(clusterList.get(i)));
+            for (int i = 0;i<centroidInstanceList.size();i++){
+                if(clusterInstanceList.get(i).size() > 0){
+                    centroidInstanceList.set(i, countNewCentroids(clusterInstanceList.get(i)));
                 }
             }
         }

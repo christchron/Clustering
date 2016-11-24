@@ -119,28 +119,14 @@ public class Clustering {
                 ArrayList<ArrayList<Double>> dataset = new ArrayList<>();
                 System.out.print("Input dataset: ");
                 String filename = input.readLine();
-//                CSVReader reader = new CSVReader(new FileReader("dataset/"+filename));
                 DataSource source = new DataSource("dataset/"+filename);
                 Instances data = source.getDataSet();
                 System.out.print("Total Cluster: ");
                 int totalCluster = Integer.parseInt(input.readLine());
-                System.out.print("Dataset with Class (yes/no)? ");
-                String answer = input.readLine();
-                String [] nextLine;
-//                while ((nextLine = reader.readNext()) != null) {
-//                   ArrayList<Double> instance = new ArrayList<>();
-//                   for(int i=0; i<nextLine.length; i++){
-//                        if(answer.equals("no") || answer.equals("No") || (answer.equals("yes") && i<nextLine.length-1)){ //assume class located in last attr
-//                            instance.add(Double.parseDouble(nextLine[i]));
-//                        }
-//                   }
-//                   dataset.add(instance);
-//                }
 
                 myKMeans K = new myKMeans();
                 K.setTotalCluster(totalCluster);
                 K.buildClusterer(data);
-//                K.buildCluster(dataset);
                 
                 K.showClusterList();
                 break;
