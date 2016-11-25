@@ -7,6 +7,7 @@ package clustering;
 
 import au.com.bytecode.opencsv.CSVReader;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,6 +18,8 @@ import java.util.logging.Logger;
 import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.Clusterer;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils;
 import weka.core.converters.ConverterUtils.DataSource;
 
@@ -119,6 +122,23 @@ public class Clustering {
                 ArrayList<ArrayList<Double>> dataset = new ArrayList<>();
                 System.out.print("Input dataset: ");
                 String filename = input.readLine();
+                System.out.println(filename.substring(filename.length() - 3 , filename.length()));
+                
+                if (filename.substring(filename.length() - 3 , filename.length()).equals("csv")){
+                    //Load CSV
+                    CSVLoader loader = new CSVLoader();
+                    loader.setSource(new File("dataset/"+filename));
+                    Instances dataCSV = loader.getDataSet();
+
+                    //Save ARFF
+                    ArffSaver saver = new ArffSaver();
+                    saver.setInstances(dataCSV);
+                    saver.setFile(new File("dataset/"+filename.substring(0, filename.length()-4)+".arff"));
+                    System.out.println("dataset/"+filename.substring(0, filename.length()-4)+".arff");
+                    saver.writeBatch();
+                }
+                
+                
                 DataSource source = new DataSource("dataset/"+filename);
                 Instances data = source.getDataSet();
                 System.out.print("Total Cluster: ");
